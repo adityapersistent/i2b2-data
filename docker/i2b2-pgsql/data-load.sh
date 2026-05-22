@@ -55,6 +55,8 @@ echo
 psql -U "$I2B2_USER" -w -f "$BASE_DIR/i2b2-data/docker/i2b2-pgsql/create-schema.sql"
 echo
 
+# Removing the temporary 'trust' rules and replace them with 'scram-sha-256'
+
 echo "Loading CRC Data..."
 CELL="i2b2demodata"
 cd "$CRCDATA_DIR"
