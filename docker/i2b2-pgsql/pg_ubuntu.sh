@@ -67,5 +67,5 @@ bash /i2b2/i2b2-data/docker/i2b2-pgsql/data-load.sh
 
 echo "==========================================="
 echo "SCRAM-SHA-256"
-sudo sed -i "s/^local.*all.*peer/local all all scram-sha-256/" $PG_HBA
-sudo sed -i "s/^host.*all.*127.0.0.1.*ident/host all all 127.0.0.1\/32 scram-sha-256/" $PG_HBA
+sed -i "s/^local.*all.*peer/local all all scram-sha-256/" $PG_HBA
+sed -i "s/^host.*all.*127.0.0.1.*ident/host all all 127.0.0.1\/32 scram-sha-256/" $PG_HBA
