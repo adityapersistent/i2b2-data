@@ -76,9 +76,9 @@ sleep 10
 docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q 'SELECT name, database_id,create_date FROM sys.databases ;'
 
 echo "Creating databases and users..."
-docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "$(sh configuration/create_dbs.sh)"
+docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "$(sh $configuration_path/create_dbs.sh)"
 sleep 20
-docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "$(sh configuration/create_users.sh)"
+docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "$(sh $configuration_path/create_users.sh)"
 
 docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q 'SELECT name, database_id,create_date FROM sys.databases ;'
 
