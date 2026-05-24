@@ -50,7 +50,7 @@ jobs:
           export docker_reponame=${{ secrets.DOCKER_REPO }}
  
           cd docker/i2b2-pgsql/
-          sh create_pgsql_image.sh "$DATABASE_TAG"
+          bash create_pgsql_image.sh "$DATABASE_TAG"
  
       - name: List docker images
         run: docker images
@@ -93,7 +93,7 @@ jobs:
           export docker_reponame=${{ secrets.DOCKER_REPO }}
  
           cd docker/i2b2-mssql/
-          sh create_mssql_image.sh "$DATABASE_TAG"
+          bash create_mssql_image.sh "$DATABASE_TAG"
  
       - name: List docker images
         run: docker images
@@ -136,7 +136,7 @@ jobs:
           export docker_reponame=${{ secrets.DOCKER_REPO }}
  
           cd docker/i2b2-oracle/
-          sh create_oracle_image.sh "$DATABASE_TAG"
+          bash create_oracle_image.sh "$DATABASE_TAG"
  
       - name: List docker images
         run: docker images        
