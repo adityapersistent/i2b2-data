@@ -8,8 +8,13 @@
 # Arguments:   $1 - The tag to be applied to the newly built PostgreSQL image.
 # ==============================================================================
 
-export I2B2_DATA_PGSQL_TAG=$1
+if [  -z "${docker_username:-}" ]  && [ ! -d "/home/runner/work/i2b2-data/i2b2-data/" ]; then
+    export docker_username="local"
+    export docker_reponame="local"
+fi
 
+sleep 10
+export I2B2_DATA_PGSQL_TAG="${1:-local}"
 echo "Starting postgres docker container.."
 # Start the i2b2-pg container (runs data load and initialization setup)
 cd setup
@@ -19,7 +24,7 @@ docker compose up i2b2-pg
 if [ $? -eq 0 ]; then 
     echo "completed the scripts, building the docker image now.."
     # Execute the secondary script to commit, build, and push the image
-    source setup/dockerimage.sh
+    source dockerimage.sh
 else
     echo "failed to commit the docker image"
     exit 1    
