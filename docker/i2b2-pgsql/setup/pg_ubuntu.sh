@@ -63,7 +63,7 @@ echo "PostgreSQL is ready"
 date 
 echo "executing data-load.sh"
 echo "==========================================="
-bash /i2b2/i2b2-data/docker/i2b2-pgsql/data-load.sh
+bash /i2b2/i2b2-data/docker/i2b2-pgsql/setup/data-load.sh
 
 echo "==========================================="
 echo "SCRAM-SHA-256"

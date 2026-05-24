@@ -12,6 +12,7 @@ export I2B2_DATA_PGSQL_TAG=$1
 
 echo "Starting postgres docker container.."
 # Start the i2b2-pg container (runs data load and initialization setup)
+cd setup
 docker compose up i2b2-pg
 
 # Check if the docker compose command finished successfully

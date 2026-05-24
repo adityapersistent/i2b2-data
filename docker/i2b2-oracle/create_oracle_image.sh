@@ -14,16 +14,17 @@
 # -u: Treat unset variables as an error.
 set -eu
 
-# Validate input arguments
-if [ -z "${1:-}" ]; then
-    echo "Error: Missing required argument I2B2_DATA_ORACLE_TAG."
-    echo "Usage: $0 <I2B2_DATA_ORACLE_TAG>"
-    exit 1
+build="prod"
+if [  -z "${docker_username:-}"  ] && [ ! -d "/home/runner/work/i2b2-data/i2b2-data/" ]; then
+    export docker_username="local"
+    export docker_reponame="local"
+    build="local"
 fi
 
-I2B2_DATA_ORACLE_TAG="$1"
+I2B2_DATA_ORACLE_TAG="${1:-local}"
 I2B2_CORE_SERVER_HOST="i2b2-core-server"
 I2B2_CORE_SERVER_PORT="8080"
+I2B2_DATA_PATH=$(pwd)/../..
 
 # Secure credentials using defaults that can be overridden by environment variables
 ORACLE_PWD="${ORACLE_PWD:-MyStrongPass123}"
@@ -37,7 +38,7 @@ docker run -d \
   --name oracle23 \
   -p 1521:1521 \
   -e ORACLE_PWD="$ORACLE_PWD" \
-  -v "/home/runner/work/i2b2-data/i2b2-data/:/i2b2" \
+  -v "$I2B2_DATA_PATH:/i2b2" \
   --network i2b2-net \
   container-registry.oracle.com/database/free:latest
 
@@ -130,12 +131,12 @@ ant -f data_build.xml create_workdata_tables_release_1-8
 ant -f data_build.xml db_workdata_load_data
 
 cd "$root"
-
-echo "Cleaning up directories..." #Space Issue in Github CI Pipeline
-rm -rf .git
-rm -rf edu.harvard.i2b2.data
-df -h
-
+if ["$build"=="prod"]; then
+    echo "Cleaning up directories..." #Space Issue in Github CI Pipeline
+    rm -rf .git
+    rm -rf edu.harvard.i2b2.data
+    df -h
+fi
 echo "Committing Docker image..."
 docker commit oracle23 "${docker_username}/${docker_reponame}:i2b2-data-oracle_${I2B2_DATA_ORACLE_TAG}"
 docker push "${docker_username}/${docker_reponame}:i2b2-data-oracle_${I2B2_DATA_ORACLE_TAG}"
