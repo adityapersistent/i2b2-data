@@ -9,26 +9,12 @@
 
 export DEBIAN_FRONTEND=noninteractive
 
-# # FIX: handle Ubuntu 24.04 (.sources + .list)
-# find /etc/apt -type f \( -name "*.list" -o -name "*.sources" \) -exec \
-#   sed -i 's|http://archive.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g' {} \;
-
-# find /etc/apt -type f \( -name "*.list" -o -name "*.sources" \) -exec \
-#   sed -i 's|http://security.ubuntu.com/ubuntu|http://azure.archive.ubuntu.com/ubuntu|g' {} \;
-
-# # Network tuning (prevents "Waiting for headers")
-# echo 'Acquire::ForceIPv4 "true";' > /etc/apt/apt.conf.d/99force-ipv4
-# echo 'Acquire::Retries "3";' > /etc/apt/apt.conf.d/80-retries
-# echo 'Acquire::http::Timeout "30";' > /etc/apt/apt.conf.d/99timeout
-
-
 apt-get update
 apt-get install -y postgresql postgresql-contrib ant
 
 # Clean up apt cache to reduce image size
 rm -rf /var/lib/apt/lists/*
 
-# /etc/init.d/postgresql status
 /etc/init.d/postgresql start
 
 echo "started postgresql service on ubuntu container"
@@ -63,7 +49,7 @@ echo "PostgreSQL is ready"
 date 
 echo "executing data-load.sh"
 echo "==========================================="
-bash /i2b2/i2b2-data/docker/i2b2-pgsql/setup/data-load.sh
+source /i2b2/i2b2-data/docker/i2b2-pgsql/setup/data-load.sh
 
 echo "==========================================="
 echo "SCRAM-SHA-256"

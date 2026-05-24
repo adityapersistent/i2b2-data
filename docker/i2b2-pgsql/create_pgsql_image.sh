@@ -19,7 +19,7 @@ docker compose up i2b2-pg
 if [ $? -eq 0 ]; then 
     echo "completed the scripts, building the docker image now.."
     # Execute the secondary script to commit, build, and push the image
-    sh dockerimage.sh
+    source dockerimage.sh
 else
     echo "failed to commit the docker image"
     exit 1    
