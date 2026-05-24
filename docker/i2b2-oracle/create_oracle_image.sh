@@ -131,7 +131,7 @@ ant -f data_build.xml create_workdata_tables_release_1-8
 ant -f data_build.xml db_workdata_load_data
 
 cd "$root"
-if ["$build"=="prod"]; then
+if [ "$build" == "prod" ]; then
     echo "Cleaning up directories..." #Space Issue in Github CI Pipeline
     rm -rf .git
     rm -rf edu.harvard.i2b2.data
