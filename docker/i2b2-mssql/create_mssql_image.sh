@@ -35,10 +35,11 @@ dbproperties_path="$i2b2_data_path/docker/i2b2-mssql/configuration/db.properties
 wait_for_mssql() {
     echo "Waiting for MSSQL to initialize..."
     for i in {1..30}; do
-        if docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "SELECT 1;" &> /dev/null; then
+        if docker logs i2b2-mssql 2>&1 | grep -q "SQL Server is now ready for client connections"; then
+            echo "MSSQL is ready."
             return 0
         fi
-        sleep 7
+        sleep 5
     done
     echo "MSSQL failed to initialize within the timeout period."
     exit 1
@@ -53,7 +54,6 @@ cd "$configuration_path"
 echo "Creating Docker network and starting MSSQL container..."
 docker network create i2b2-net || true
 DOCKER_GATEWAY_IP=$(docker network inspect i2b2-net -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}')
-docker images 
 
 docker run -i -e "ACCEPT_EULA=Y"  -e "SA_PASSWORD=$SA_PASSWORD" -e "TZ=America/New_York" -p 1433:1433 --net i2b2-net --name i2b2-mssql -d mcr.microsoft.com/mssql/server:2019-latest
 
