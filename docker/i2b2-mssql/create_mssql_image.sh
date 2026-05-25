@@ -4,41 +4,31 @@
 # Script Name: create_mssql_image.sh
 # Description: Creates, configures, and pushes a Docker image containing 
 #              an MSSQL database pre-loaded with i2b2 demo data.
-# Usage:       sh create_mssql_image.sh <I2B2_DATA_MSSQL_TAG>
+# Usage:       bash create_mssql_image.sh <I2B2_DATA_MSSQL_TAG>
 # ==============================================================================
 
 # Exit immediately if a command exits with a non-zero status
-set -eu
+set -e
 
-# Validate input arguments
-# if [ -z "${1:-}" ]; then
-#     echo "Error: Missing required argument I2B2_DATA_MSSQL_TAG."
-#     echo "Usage: $0 <I2B2_DATA_MSSQL_TAG>"
-#     exit 1
-# fi
-
-if [  -z "${docker_username:-}"  ] && [ ! -d "/home/runner/work/i2b2-data/i2b2-data/" ]; then
-    # echo "This script requires sudo access to install openjdk-21 & ant ."
-    sleep 5
+#local build or CI build
+if [ "$CI" = "true" ]; then
+    echo "Running in GitHub Actions.."
+else
+    echo "Running Locally.."
+    echo "This script requires sudo access to install Ant ."
+    sudo apt update && sudo apt install -y ant 
     export docker_username="local"
     export docker_reponame="local"
-fi
-
+    
 I2B2_DATA_MSSQL_TAG="${1:-local}"
 I2B2_WILDFLY_HOST="i2b2-core-server"
 I2B2_WILDFLY_PORT="8080"
 
 CORE_SERVER_REPO=$(pwd)/..
-
-# Setup paths (Designed for GitHub Actions CI runner environment)
 i2b2_data_path=$(pwd)/../..
-ls
-pwd
-
-# /home/runner/work/i2b2-data/i2b2-data/
 configuration_path=$i2b2_data_path/docker/i2b2-mssql/configuration
 dbproperties_path=$i2b2_data_path/docker/i2b2-mssql/configuration/db.properties
-# /home/runner/work/i2b2-data/i2b2-data/docker/i2b2-mssql/configuration
+
 cd "$i2b2_data_path"
 
 DEMO_PASS="${I2B2_DEMO_PASS:-Demouser123}"
@@ -170,10 +160,12 @@ echo "=================== DATA LOADING COMPLETE ==================="
 sleep 20
 df -h
 
-echo "Cleaning up i2b2-data repo to resolve space issues..." #Inside Build job
-# rm -rf "$i2b2_data_path/edu.harvard.i2b2.data/"
+if [ "$CI" = "true" ]; then
+    echo "Cleaning up i2b2-data repo to resolve space issues..." #Space Issue in Github CI Pipeline
+    rm -rf .git
+    rm -rf "$i2b2_data_path/edu.harvard.i2b2.data/"
+fi
 
-df -h
 echo "Completed data load for i2b2-data-mssql."
 
 echo "Committing and pushing Docker image..."

@@ -5,20 +5,23 @@
 # Script Name: create_oracle_image.sh
 # Description: Creates, configures, and pushes a Docker image containing 
 #              an Oracle database pre-loaded with i2b2 demo data.
-# Usage:       sh create_oracle_image.sh <I2B2_DATA_ORACLE_TAG>
+# Usage:       bash create_oracle_image.sh <I2B2_DATA_ORACLE_TAG>
 # Expected Output: A committed Docker image for Oracle with i2b2 data loaded.
 # ==============================================================================
 
 # Enforce strict error handling:
 # -e: Exit immediately if a command returns a non-zero status.
-# -u: Treat unset variables as an error.
-set -eu
+set -e
 
-build="prod"
-if [  -z "${docker_username:-}"  ] && [ ! -d "/home/runner/work/i2b2-data/i2b2-data/" ]; then
+#local build or CI build
+if [ "$CI" = "true" ]; then
+    echo "Running in GitHub Actions.."
+else
+    echo "Running Locally.."
+    echo "This script requires sudo access to install Ant ."
+    sudo apt update && sudo apt install -y ant 
     export docker_username="local"
     export docker_reponame="local"
-    build="local"
 fi
 
 I2B2_DATA_ORACLE_TAG="${1:-local}"
@@ -130,13 +133,12 @@ sed -e "s|localhost|$docker_network_gateway_ip|g" \
 ant -f data_build.xml create_workdata_tables_release_1-8
 ant -f data_build.xml db_workdata_load_data
 
-cd "$root"
-if [ "$build" == "prod" ]; then
-    echo "Cleaning up directories..." #Space Issue in Github CI Pipeline
+if [ "$CI" = "true" ]; then
+    echo "Cleaning up i2b2-data repo to resolve space issues..." #Space Issue in Github CI Pipeline
     rm -rf .git
-    rm -rf edu.harvard.i2b2.data
-    df -h
+    rm -rf "$i2b2_data_path/edu.harvard.i2b2.data/"
 fi
+
 echo "Committing Docker image..."
 docker commit oracle23 "${docker_username}/${docker_reponame}:i2b2-data-oracle_${I2B2_DATA_ORACLE_TAG}"
 docker push "${docker_username}/${docker_reponame}:i2b2-data-oracle_${I2B2_DATA_ORACLE_TAG}"
