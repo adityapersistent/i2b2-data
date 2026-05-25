@@ -38,7 +38,7 @@ wait_for_mssql() {
         if docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "SELECT 1;" &> /dev/null; then
             return 0
         fi
-        sleep 5
+        sleep 7
     done
     echo "MSSQL failed to initialize within the timeout period."
     exit 1
