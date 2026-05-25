@@ -57,16 +57,15 @@ docker exec -e ORACLE_PWD="$ORACLE_PWD" oracle23 bash -c 'sqlplus -s "sys/${ORAC
 
 docker_network_gateway_ip=$(docker network inspect i2b2-net -f '{{range .IPAM.Config}}{{.Gateway}}{{end}}')
 
-root="/home/runner/work/i2b2-data/i2b2-data/"
-cd "$root"
+cd "$I2B2_DATA_PATH"
 
 echo "Loading CRC Data..."
 CELL=i2b2demodata
-cd "$root/edu.harvard.i2b2.data/Release_1-8/NewInstall/Crcdata/"
+cd "$I2B2_DATA_PATH/edu.harvard.i2b2.data/Release_1-8/NewInstall/Crcdata/"
 sed -e "s|localhost|$docker_network_gateway_ip|g" \
     -e "s|PWD|$DEMO_PASS|g" \
     -e "s|USER_NAME|$CELL|g" \
-    "$root/docker/i2b2-oracle/db.properties" > db.properties
+    "$I2B2_DATA_PATH/docker/i2b2-oracle/db.properties" > db.properties
 cat db.properties
 
 ant -f data_build.xml create_crcdata_tables_release_1-8
@@ -75,32 +74,32 @@ ant -f data_build.xml db_demodata_load_data
 
 echo "Loading HIVE Data..."
 CELL=i2b2hive
-cd "$root/edu.harvard.i2b2.data/Release_1-8/NewInstall/Hivedata"
+cd "$I2B2_DATA_PATH/edu.harvard.i2b2.data/Release_1-8/NewInstall/Hivedata"
 sed -e "s|localhost|$docker_network_gateway_ip|g" \
     -e "s|PWD|$DEMO_PASS|g" \
     -e "s|USER_NAME|$CELL|g" \
-    "$root/docker/i2b2-oracle/db.properties" > db.properties
+    "$I2B2_DATA_PATH/docker/i2b2-oracle/db.properties" > db.properties
 ant -f data_build.xml create_hivedata_tables_release_1-8
 ant -f data_build.xml db_hivedata_load_data
 
 echo "Loading IM Data..."
 CELL=i2b2imdata
-cd "$root/edu.harvard.i2b2.data/Release_1-8/NewInstall/Imdata"
+cd "$I2B2_DATA_PATH/edu.harvard.i2b2.data/Release_1-8/NewInstall/Imdata"
 sed -e "s|localhost|$docker_network_gateway_ip|g" \
     -e "s|PWD|$DEMO_PASS|g" \
     -e "s|USER_NAME|$CELL|g" \
-    "$root/docker/i2b2-oracle/db.properties" > db.properties
+    "$I2B2_DATA_PATH/docker/i2b2-oracle/db.properties" > db.properties
 cat db.properties
 ant -f data_build.xml create_imdata_tables_release_1-8
 ant -f data_build.xml db_imdata_load_data 
 
 echo "Loading Metadata..."
 CELL=i2b2metadata
-cd "$root/edu.harvard.i2b2.data/Release_1-8/NewInstall/Metadata"
+cd "$I2B2_DATA_PATH/edu.harvard.i2b2.data/Release_1-8/NewInstall/Metadata"
 sed -e "s|localhost|$docker_network_gateway_ip|g" \
     -e "s|PWD|$DEMO_PASS|g" \
     -e "s|USER_NAME|$CELL|g" \
-    "$root/docker/i2b2-oracle/db.properties" > db.properties
+    "$I2B2_DATA_PATH/docker/i2b2-oracle/db.properties" > db.properties
 cat db.properties
 ant -f data_build.xml create_metadata_tables_release_1-8
 ant -f data_build.xml db_metadata_load_data 
@@ -110,14 +109,14 @@ ant -f data_build.xml db_metadata_load_data
 
 echo "Loading PM Data..."
 CELL=i2b2pm
-cd "$root/edu.harvard.i2b2.data/Release_1-8/NewInstall/Pmdata"
+cd "$I2B2_DATA_PATH/edu.harvard.i2b2.data/Release_1-8/NewInstall/Pmdata"
 sed -e "s|localhost|$docker_network_gateway_ip|g" \
     -e "s|PWD|$DEMO_PASS|g" \
     -e "s|USER_NAME|$CELL|g" \
-    "$root/docker/i2b2-oracle/db.properties" > db.properties
+    "$I2B2_DATA_PATH/docker/i2b2-oracle/db.properties" > db.properties
 
 echo "Replacing host:port in Pmdata/scripts/demo/pm_access_insert_data.sql.."
-sed -i "s|localhost:9090|$I2B2_CORE_SERVER_HOST:$I2B2_CORE_SERVER_PORT|g" "$root/edu.harvard.i2b2.data/Release_1-8/NewInstall/Pmdata/scripts/demo/pm_access_insert_data.sql"
+sed -i "s|localhost:9090|$I2B2_CORE_SERVER_HOST:$I2B2_CORE_SERVER_PORT|g" "$I2B2_DATA_PATH/edu.harvard.i2b2.data/Release_1-8/NewInstall/Pmdata/scripts/demo/pm_access_insert_data.sql"
 
 ant -f data_build.xml create_pmdata_tables_release_1-8
 ant -f data_build.xml create_triggers_release_1-8
@@ -125,18 +124,18 @@ ant -f data_build.xml db_pmdata_load_data
 
 echo "Loading Workplace Data..."
 CELL=i2b2workdata
-cd "$root/edu.harvard.i2b2.data/Release_1-8/NewInstall/Workdata"
+cd "$I2B2_DATA_PATH/edu.harvard.i2b2.data/Release_1-8/NewInstall/Workdata"
 sed -e "s|localhost|$docker_network_gateway_ip|g" \
     -e "s|PWD|$DEMO_PASS|g" \
     -e "s|USER_NAME|$CELL|g" \
-    "$root/docker/i2b2-oracle/db.properties" > db.properties
+    "$I2B2_DATA_PATH/docker/i2b2-oracle/db.properties" > db.properties
 ant -f data_build.xml create_workdata_tables_release_1-8
 ant -f data_build.xml db_workdata_load_data
 
 if [ "$CI" = "true" ]; then
     echo "Cleaning up i2b2-data repo to resolve space issues..." #Space Issue in Github CI Pipeline
     rm -rf .git
-    rm -rf "$i2b2_data_path/edu.harvard.i2b2.data/"
+    rm -rf "$I2B2_DATA_PATH/edu.harvard.i2b2.data/"
 fi
 
 echo "Committing Docker image..."

@@ -4,7 +4,6 @@
 # Script Name: pg_ubuntu.sh
 # Description: Installs and configures PostgreSQL on an Ubuntu container.
 # ==============================================================================
-#!/bin/bash
 # set -eu
 
 export DEBIAN_FRONTEND=noninteractive
@@ -26,7 +25,7 @@ date
 #updating postgresql configuration
 echo "timezone = 'America/New_York'" >> $PG_CONF
 
-sed -i "0,/#listen_addresses = 'localhost'/s/#listen_addresses = 'localhost'/listen_addresses = '*'/" /etc/postgresql/16/main/postgresql.conf
+sed -i "0,/#listen_addresses = 'localhost'/s/#listen_addresses = 'localhost'/listen_addresses = '*'/" $PG_CONF
 
 sed -i 's/local   all             postgres                                peer/local   all             postgres                                trust/' $PG_HBA
 
@@ -35,7 +34,6 @@ sed -i 's/local   all             all                                     peer/l
 sed -i 's#host    all             all             127.0.0.1/32            scram-sha-256#host    all             all             0.0.0.0/0            scram-sha-256#g' $PG_HBA
 
 
-user_name=$(whoami)
 /etc/init.d/postgresql restart
 
 echo "Waiting for PostgreSQL to be ready..."

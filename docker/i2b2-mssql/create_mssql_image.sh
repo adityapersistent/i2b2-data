@@ -11,7 +11,7 @@
 set -e
 
 #local build or CI build
-if [ "$CI" = "true" ]; then
+if [ "${CI:-}" = "true" ]; then
     echo "Running in GitHub Actions.."
 else
     echo "Running Locally.."
@@ -25,10 +25,24 @@ I2B2_DATA_MSSQL_TAG="${1:-local}"
 I2B2_WILDFLY_HOST="i2b2-core-server"
 I2B2_WILDFLY_PORT="8080"
 
-CORE_SERVER_REPO=$(pwd)/..
-i2b2_data_path=$(pwd)/../..
-configuration_path=$i2b2_data_path/docker/i2b2-mssql/configuration
-dbproperties_path=$i2b2_data_path/docker/i2b2-mssql/configuration/db.properties
+CORE_SERVER_REPO="$(pwd)/.."
+i2b2_data_path="$(pwd)/../.."
+configuration_path="$i2b2_data_path/docker/i2b2-mssql/configuration"
+dbproperties_path="$i2b2_data_path/docker/i2b2-mssql/configuration/db.properties"
+
+
+# Helper function to wait for SQL server to be ready
+wait_for_mssql() {
+    echo "Waiting for MSSQL to initialize..."
+    for i in {1..30}; do
+        if docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q "SELECT 1;" &> /dev/null; then
+            return 0
+        fi
+        sleep 5
+    done
+    echo "MSSQL failed to initialize within the timeout period."
+    exit 1
+}
 
 cd "$i2b2_data_path"
 
@@ -44,7 +58,7 @@ docker images
 docker run -i -e "ACCEPT_EULA=Y"  -e "SA_PASSWORD=$SA_PASSWORD" -e "TZ=America/New_York" -p 1433:1433 --net i2b2-net --name i2b2-mssql -d mcr.microsoft.com/mssql/server:2019-latest
 
 echo "Waiting for MSSQL to initialize..."
-sleep 50
+wait_for_mssql
 docker ps
 
 
@@ -58,7 +72,7 @@ docker exec --user root i2b2-mssql bash -c "curl -sL -o sqlpackage.zip https://a
 
 echo "Restarting MSSQL container to apply changes..."
 docker restart i2b2-mssql
-sleep 10
+wait_for_mssql
 
 echo "Verifying Full-Text Search installation..."
 docker exec -i -e SQLCMDPASSWORD="$SA_PASSWORD" i2b2-mssql /opt/mssql-tools/bin/sqlcmd -S localhost -U SA -Q  "SELECT FULLTEXTSERVICEPROPERTY('IsFullTextInstalled') AS IsFullTextInstalled;"
@@ -161,7 +175,7 @@ echo "=================== DATA LOADING COMPLETE ==================="
 sleep 20
 df -h
 
-if [ "$CI" = "true" ]; then
+if [ "${CI:-}" = "true" ]; then
     echo "Cleaning up i2b2-data repo to resolve space issues..." #Space Issue in Github CI Pipeline
     rm -rf .git
     rm -rf "$i2b2_data_path/edu.harvard.i2b2.data/"
