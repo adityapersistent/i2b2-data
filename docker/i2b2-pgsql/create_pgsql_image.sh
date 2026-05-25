@@ -16,8 +16,8 @@ else
     sudo apt update && sudo apt install -y ant 
     export docker_username="local"
     export docker_reponame="local"
+fi 
 
-sleep 10
 export I2B2_DATA_PGSQL_TAG="${1:-local}"
 echo "Starting postgres docker container.."
 # Start the i2b2-pg container (runs data load and initialization setup)

@@ -19,7 +19,8 @@ else
     sudo apt update && sudo apt install -y ant 
     export docker_username="local"
     export docker_reponame="local"
-    
+fi
+
 I2B2_DATA_MSSQL_TAG="${1:-local}"
 I2B2_WILDFLY_HOST="i2b2-core-server"
 I2B2_WILDFLY_PORT="8080"
