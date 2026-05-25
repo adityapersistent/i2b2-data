@@ -217,6 +217,6 @@ docker push "${docker_username}/${docker_reponame}:i2b2-data-mssql_${I2B2_DATA_M
 # docker commit i2b2-mssql-vol-backup local/i2b2-mssql-vol
 
 
-# docker tag local/i2b2-mssql-vol host_name/new_repo:i2b2-mssql-vol-$VERSION-$date
-# docker push host_name/new_repo:i2b2-mssql-vol-$VERSION-$date
+# docker tag local/i2b2-mssql-vol host_name/new_repo:i2b2-mssql-vol-$I2B2_DATA_MSSQL_TAG
+# docker push host_name/new_repo:i2b2-mssql-vol-$I2B2_DATA_MSSQL_TAG
 # docker rm -f i2b2-mssql i2b2-mssql-vol-backup
